@@ -1,0 +1,25 @@
+# Gradle
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files
+*.jar
+*.zip
+*.tar.gz
+
+# IntelliJ IDEA
+.idea
+*.iml
+build
+out
+
+# macOS
+.DS_Store
