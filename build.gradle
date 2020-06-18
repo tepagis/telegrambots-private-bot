@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+description 'Telegram bot with approval flow to get acceess to it'
+
+group 'com.github.tepagis'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.telegram:telegrambots-abilities:4.9"
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+}
+
+test {
+    useJUnitPlatform()
+}
