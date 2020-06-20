@@ -166,7 +166,7 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         .locality(USER)
         .privacy(CREATOR)
         .info("Rejects request to access from user")
-        .input(2)
+        .input(1)
         .action(ctx -> {
           val userId = parseUserId(ctx.firstArg());
           if (!bot.requests().containsKey(userId)) {
@@ -194,7 +194,7 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         .locality(USER)
         .privacy(CREATOR)
         .info("Revokes access for user")
-        .input(2)
+        .input(1)
         .action(ctx -> {
           val userId = parseUserId(ctx.firstArg());
           if (!bot.requests().containsKey(userId)) {

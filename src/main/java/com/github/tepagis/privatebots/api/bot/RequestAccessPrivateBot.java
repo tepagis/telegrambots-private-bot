@@ -5,7 +5,6 @@ import static org.telegram.abilitybots.api.db.MapDBContext.onlineInstance;
 import com.github.tepagis.privatebots.api.objects.RequestAccess;
 import com.github.tepagis.privatebots.api.objects.RequestAccess.Status;
 import java.util.Map;
-import java.util.Set;
 import lombok.val;
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.db.DBContext;
@@ -22,24 +21,23 @@ public abstract class RequestAccessPrivateBot extends AbilityBot {
 
   private Long creatorChatId;
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, DBContext db,
-      AbilityToggle toggle,
-      DefaultBotOptions botOptions) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      DBContext db, AbilityToggle toggle, DefaultBotOptions botOptions) {
     super(botToken, botUsername, db, toggle, botOptions);
   }
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, AbilityToggle toggle,
-      DefaultBotOptions options) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      AbilityToggle toggle, DefaultBotOptions options) {
     this(botToken, botUsername, onlineInstance(botUsername), toggle, options);
   }
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, DBContext db,
-      AbilityToggle toggle) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      DBContext db, AbilityToggle toggle) {
     this(botToken, botUsername, db, toggle, new DefaultBotOptions());
   }
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, DBContext db,
-      DefaultBotOptions options) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      DBContext db, DefaultBotOptions options) {
     this(botToken, botUsername, db, new DefaultToggle(), options);
   }
 
@@ -48,11 +46,13 @@ public abstract class RequestAccessPrivateBot extends AbilityBot {
     this(botToken, botUsername, onlineInstance(botUsername), botOptions);
   }
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, AbilityToggle toggle) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      AbilityToggle toggle) {
     this(botToken, botUsername, onlineInstance(botUsername), toggle);
   }
 
-  protected RequestAccessPrivateBot(String botToken, String botUsername, DBContext db) {
+  protected RequestAccessPrivateBot(String botToken, String botUsername,
+      DBContext db) {
     this(botToken, botUsername, db, new DefaultToggle());
   }
 
@@ -88,12 +88,9 @@ public abstract class RequestAccessPrivateBot extends AbilityBot {
     return super.userIds();
   }
 
-  protected Set<Integer> rejectedUsers() {
-    return super.blacklist();
-  }
-
   protected boolean hasAccess(Integer userId) {
     val requests = requests();
-    return requests.containsKey(userId) && Status.APPROVED.equals(requests.get(userId).getStatus());
+    return userId == creatorId()
+      || (requests.containsKey(userId) && Status.APPROVED.equals(requests.get(userId).getStatus()));
   }
 }
