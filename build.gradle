@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
 java {
@@ -22,13 +23,28 @@ repositories {
 }
 
 dependencies {
-    compile "org.telegram:telegrambots-abilities:4.9"
+    compile 'org.telegram:telegrambots-abilities:4.9'
 
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
+
+    testCompile 'org.mockito:mockito-core:3.1.0'
+    testCompile 'org.mockito:mockito-junit-jupiter:3.1.0'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    testCompile 'org.slf4j:slf4j-nop:1.7.29'
 }
 
 test {
+    finalizedBy jacocoTestReport
+
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    dependsOn test
 }
