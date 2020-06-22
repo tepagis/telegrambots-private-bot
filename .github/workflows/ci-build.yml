@@ -20,3 +20,4 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: build
+          gradle-version: 6.4
