@@ -63,18 +63,18 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
 
           if (user.getId() == bot.creatorId()) {
             bot.setCreatorChatId(ctx.chatId());
-            sendToCreator(ctx, CREATOR_START, name, REQUESTS);
+            send(ctx, CREATOR_START, name, REQUESTS);
             return;
           }
 
-          val langCode = user.getLanguageCode();
           if (!bot.requests().containsKey(user.getId())) {
-            send(ctx.chatId(), langCode, PUBLIC_START, name, REQUEST);
+            send(ctx, PUBLIC_START, name, REQUEST);
             return;
           }
 
-          bot.requests().get(user.getId()).setRequesterChatId(ctx.chatId());
-          sendToRequester(user);
+          val request = bot.requests().get(user.getId());
+          request.setRequesterChatId(ctx.chatId());
+          sendToRequester(user, request);
         })
         .build();
   }
@@ -94,11 +94,11 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
             bot.requests().put(user.getId(), request);
             val name = shortName(user);
             sendToCreator(CREATOR_NEW_REQUEST, name, user.getId(), APPROVE, REJECT);
-            send(request.getRequesterChatId(), user.getLanguageCode(), REQUESTER_PENDING, name);
+            send(ctx, REQUESTER_PENDING, name);
             return;
           }
 
-          sendToRequester(user);
+          sendToRequester(user, bot.requests().get(user.getId()));
         })
         .build();
   }
@@ -115,6 +115,8 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
               .map(entry -> Pair.of(entry.getKey(), entry.getValue()))
               .collect(
                   Collectors.partitioningBy(pair -> Status.PENDING.equals(pair.b().getStatus())))
+              // true -> List<Pair<UserId, Request(Pending)>>
+              // false -> List<Pair<UserId, Request(Another statuses)>>
               .values().stream()
               .map(entry -> entry.stream()
                   .map(pair -> {
@@ -125,8 +127,9 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
                   .collect(Collectors.joining("\n")))
               .collect(Collectors.toList());
 
-          send(ctx.chatId(), ctx.user().getLanguageCode(), CREATOR_REQUESTS, requests.get(0),
-              requests.get(1));
+          val pendingRequests = requests.get(1);
+          val completedRequests = requests.get(0);
+          send(ctx, CREATOR_REQUESTS, pendingRequests, completedRequests);
         })
         .build();
   }
@@ -141,21 +144,22 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         .action(ctx -> {
           val userId = parseUserId(ctx.firstArg());
           if (!bot.requests().containsKey(userId)) {
-            sendToCreator(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
+            send(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
             return;
           }
 
           val request = bot.requests().get(userId);
           if (Status.APPROVED.equals(request.getStatus())) {
-            sendToCreator(ctx, CREATOR_APPROVE_ALREADY, ctx.firstArg());
+            send(ctx, CREATOR_APPROVE_ALREADY, ctx.firstArg());
             return;
           }
 
           request.setStatus(Status.APPROVED);
-          val requester = bot.users().get(userId);
-          sendToRequester(requester);
 
-          sendToCreator(ctx, CREATOR_APPROVE_SUCCESS, ctx.firstArg());
+          val requester = bot.users().get(userId);
+          sendToRequester(requester, request);
+
+          send(ctx, CREATOR_APPROVE_SUCCESS, ctx.firstArg());
         })
         .build();
   }
@@ -170,20 +174,20 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         .action(ctx -> {
           val userId = parseUserId(ctx.firstArg());
           if (!bot.requests().containsKey(userId)) {
-            sendToCreator(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
+            send(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
             return;
           }
 
           val request = bot.requests().get(userId);
           if (Status.APPROVED.equals(request.getStatus())) {
-            sendToCreator(ctx, CREATOR_REQUEST_REJECT_FAIL, REVOKE, ctx.firstArg());
+            send(ctx, CREATOR_REQUEST_REJECT_FAIL, REVOKE, ctx.firstArg());
             return;
           }
 
           request.setStatus(Status.REJECTED);
 
-          sendToRequester(bot.users().get(userId));
-          sendToCreator(ctx, CREATOR_REQUEST_REJECT_SUCCESS, ctx.firstArg());
+          sendToRequester(bot.users().get(userId), request);
+          send(ctx, CREATOR_REQUEST_REJECT_SUCCESS, ctx.firstArg());
         })
         .build();
   }
@@ -198,19 +202,20 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         .action(ctx -> {
           val userId = parseUserId(ctx.firstArg());
           if (!bot.requests().containsKey(userId)) {
-            sendToCreator(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
+            send(ctx, ERROR_WRONG_USER_ID, ctx.firstArg());
             return;
           }
 
           val request = bot.requests().get(userId);
           if (!Status.APPROVED.equals(request.getStatus())) {
-            sendToCreator(ctx, CREATOR_REQUEST_REVOKE_FAIL, REVOKE, ctx.firstArg());
+            send(ctx, CREATOR_REQUEST_REVOKE_FAIL, REVOKE, ctx.firstArg());
             return;
           }
 
           request.setStatus(Status.REVOKED);
-          sendToRequester(bot.users().get(userId));
-          sendToCreator(ctx, CREATOR_REQUEST_REVOKE_SUCCESS, ctx.firstArg());
+
+          sendToRequester(bot.users().get(userId), request);
+          send(ctx, CREATOR_REQUEST_REVOKE_SUCCESS, ctx.firstArg());
         })
         .build();
   }
@@ -221,10 +226,9 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
         : bot.usersByName().get(stripTag(arg));
   }
 
-  private void sendToRequester(User user) {
+  private void sendToRequester(User user, RequestAccess request) {
     val name = shortName(user);
     val langCode = user.getLanguageCode();
-    val request = bot.requests().get(user.getId());
     switch (request.getStatus()) {
       case APPROVED -> send(request.getRequesterChatId(), langCode, REQUESTER_APPROVED, name,
           DefaultAbilities.COMMANDS);
@@ -238,7 +242,7 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
     send(bot.getCreatorChatId(), creator.getLanguageCode(), msgCode, args);
   }
 
-  protected void sendToCreator(MessageContext ctx, String msgCode, Object... args) {
+  protected void send(MessageContext ctx, String msgCode, Object... args) {
     send(ctx.chatId(), ctx.user().getLanguageCode(), msgCode, args);
   }
 

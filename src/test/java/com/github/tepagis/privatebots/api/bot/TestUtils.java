@@ -11,13 +11,13 @@ public class TestUtils {
   public static final User CREATOR = new User(1, "creatorFirst", false, "creatorLast",
       "creatorUsername", null);
   public static final User USER = new User(2, "userFirst", false, "userLast", "username", null);
+  public static final User USER2 = new User(3, "user2First", false, "user2Last", "user2name", null);
 
   @NotNull
-  static Update mockFullUpdate(RequestAccessPrivateBot bot, User user, String args) {
-    bot.users().put(USER.getId(), USER);
-    bot.users().put(CREATOR.getId(), CREATOR);
-    bot.usersByName().put(CREATOR.getUserName(), CREATOR.getId());
-    bot.usersByName().put(USER.getUserName(), USER.getId());
+  public static Update mockFullUpdate(RequestAccessPrivateBot bot, User user, String args) {
+    addUser(bot, USER);
+    addUser(bot, CREATOR);
+    addUser(bot, USER2);
 
     Update update = Mockito.mock(Update.class);
     Mockito.when(update.hasMessage()).thenReturn(true);
@@ -29,5 +29,10 @@ public class TestUtils {
     Mockito.when(message.getChatId()).thenReturn((long) user.getId());
     Mockito.when(update.getMessage()).thenReturn(message);
     return update;
+  }
+
+  public static void addUser(RequestAccessPrivateBot bot, User user) {
+    bot.users().put(user.getId(), user);
+    bot.usersByName().put(user.getUserName(), user.getId());
   }
 }
