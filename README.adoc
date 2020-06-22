@@ -1,0 +1,49 @@
+= Telegram Private Bots
+
+image:https://github.com/tepagis/telegrambots-private-bot/workflows/build/badge.svg[link="https://github.com/tepagis/telegrambots-private-bot/actions",caption="Build Status"]
+image:https://img.shields.io/badge/license-MIT-blue.svg[link="https://raw.githubusercontent.com/tepagis/telegrambots-private-bot/master/LICENSE,caption="GitHub license"]
+
+== Dependencies
+
+https://jitpack.io/#tepagis/telegrambots-private-bot[JitPack]
+
+== Using
+=== RequestAccessPrivateBot
+Telegram bot with approval flow to get access to private commands or info.
+
+Bot extends https://github.com/rubenlagus/TelegramBots/tree/master/telegrambots-abilities[AbilityBot]
+to provide request access flow:
+
+* User who wants get access to bot enter command: `/request`
+
+* Request message with user details will be sent to bot creator, like:
+----
+The user=First Name (id=11111) requests access. To approve use command: /approve 11111. to reject: /reject 11111
+----
+
+* After the creator decides approve or reject request an additional message will be sent to requester
+
+* If creator does not want to see any more requests from user, it can be banned: /ban 11111 (command from AbilityBot)
+
+As an example simple implementation of private command:
+[source,java]
+----
+public class BotExample extends RequestAccessPrivateBot {
+
+  public Ability privateCommand() {
+    return builder()
+        .name("private")
+        .locality(USER)
+        .privacy(PUBLIC)
+        .input(0)
+        .action(ctx -> {
+          if (!hasAccess(ctx.user().getId())) {
+            silentSender().send("Don't have access to private command", ctx.chatId());
+          }
+
+          silentSender().send("Private command executed successfully", ctx.chatId());
+        })
+        .build();
+  }
+}
+----
