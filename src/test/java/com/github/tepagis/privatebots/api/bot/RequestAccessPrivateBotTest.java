@@ -274,7 +274,7 @@ public class RequestAccessPrivateBotTest {
   }
 
   @SafeVarargs
-  private void assertSendingMsgToUsers(Pair<Integer, String>... expectedMessages) {
+  private final void assertSendingMsgToUsers(Pair<Integer, String>... expectedMessages) {
     val sendMsgCaptor = ArgumentCaptor.forClass(String.class);
     val chatIdsCaptor = ArgumentCaptor.forClass(Long.class);
 

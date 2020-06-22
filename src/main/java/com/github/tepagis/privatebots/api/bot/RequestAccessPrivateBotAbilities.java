@@ -230,10 +230,15 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
     val name = shortName(user);
     val langCode = user.getLanguageCode();
     switch (request.getStatus()) {
-      case APPROVED -> send(request.getRequesterChatId(), langCode, REQUESTER_APPROVED, name,
-          DefaultAbilities.COMMANDS);
-      case PENDING -> send(request.getRequesterChatId(), langCode, REQUESTER_PENDING, name);
-      default -> send(request.getRequesterChatId(), langCode, REQUESTER_REJECTED, name);
+      case APPROVED:
+        send(request.getRequesterChatId(), langCode, REQUESTER_APPROVED, name, DefaultAbilities.COMMANDS);
+        break;
+      case PENDING:
+        send(request.getRequesterChatId(), langCode, REQUESTER_PENDING, name);
+        break;
+      default:
+        send(request.getRequesterChatId(), langCode, REQUESTER_REJECTED, name);
+        break;
     }
   }
 
