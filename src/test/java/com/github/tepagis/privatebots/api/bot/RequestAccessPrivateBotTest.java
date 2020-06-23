@@ -7,6 +7,7 @@ import static com.github.tepagis.privatebots.api.bot.TestUtils.USER2;
 import static com.github.tepagis.privatebots.api.bot.TestUtils.mockFullUpdate;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -286,12 +287,21 @@ public class RequestAccessPrivateBotTest {
 
     bot.onUpdateReceived(update);
 
+    val expectedMsg = format(
+        "Здравствуйте, %s, это частный бот с ограниченным доступом. Пожалуйста, используйте команду: '/%s', чтобы запросить доступ.",
+        russianUser.getFirstName(), "request");
+    System.out.println(expectedMsg);
+
+    val msgCaptor = ArgumentCaptor.forClass(String.class);
+    val chatIdsCaptor = ArgumentCaptor.forClass(Long.class);
+
     verify(silent, times(1)).send(
-        format(
-            "Здравствуйте, %s, это частный бот с ограниченным доступом. Пожалуйста, используйте команду: '/%s', чтобы запросить доступ.",
-            russianUser.getFirstName(), "request"),
-        russianUser.getId()
+        msgCaptor.capture(),
+        chatIdsCaptor.capture()
     );
+
+    System.out.println(msgCaptor.getValue());
+    assertEquals(expectedMsg, msgCaptor.getValue());
   }
 
   @Test
