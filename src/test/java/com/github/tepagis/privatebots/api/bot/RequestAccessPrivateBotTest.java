@@ -25,6 +25,7 @@ import org.telegram.abilitybots.api.sender.MessageSender;
 import org.telegram.abilitybots.api.sender.SilentSender;
 import org.telegram.abilitybots.api.util.Pair;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 public class RequestAccessPrivateBotTest {
 
@@ -56,7 +57,7 @@ public class RequestAccessPrivateBotTest {
 
     verify(silent, times(1)).send(
         format(
-            "Hello %s, to get list of requests to check use command: /%s",
+            "Hello %s, to get a list of pending requests use the command: /%s",
             CREATOR.getFirstName(), "requests"),
         CREATOR.getId());
   }
@@ -160,7 +161,8 @@ public class RequestAccessPrivateBotTest {
     bot.onUpdateReceived(update);
 
     verify(silent, times(1)).send(
-        format("Hello %s, your request to get access registered. Please wait the approval.",
+        format(
+            "Hello %s, your request to get access registered. Please wait the approval.",
             USER.getFirstName()),
         USER.getId());
   }
@@ -238,8 +240,9 @@ public class RequestAccessPrivateBotTest {
 
     bot.onUpdateReceived(update);
 
-    verify(silent, times(1))
-        .send("Private command executed successfully", USER.getId());
+    verify(silent, times(1)).send(
+        "Private command executed successfully",
+        USER.getId());
   }
 
   @Test
@@ -248,8 +251,9 @@ public class RequestAccessPrivateBotTest {
 
     bot.onUpdateReceived(update);
 
-    verify(silent, times(1))
-        .send("Private command executed successfully", CREATOR.getId());
+    verify(silent, times(1)).send(
+        "Private command executed successfully",
+        CREATOR.getId());
   }
 
   @Test
@@ -258,8 +262,9 @@ public class RequestAccessPrivateBotTest {
 
     bot.onUpdateReceived(update);
 
-    verify(silent, times(1))
-        .send("Don't have access to private command", USER.getId());
+    verify(silent, times(1)).send(
+        "Don't have access to private command",
+        USER.getId());
   }
 
   @Test
@@ -269,8 +274,37 @@ public class RequestAccessPrivateBotTest {
 
     bot.onUpdateReceived(update);
 
-    verify(silent, times(1))
-        .send("Don't have access to private command", USER.getId());
+    verify(silent, times(1)).send(
+        "Don't have access to private command",
+        USER.getId());
+  }
+
+  @Test
+  public void startByUserLocalized() {
+    val user = new User(5, "name", false, "lastName", "username", "en-EN");
+    val update = mockFullUpdate(bot, user, "/start");
+
+    bot.onUpdateReceived(update);
+
+    verify(silent, times(1)).send(
+        "Specific locale message to test",
+        user.getId()
+    );
+  }
+
+  @Test
+  public void startByUserMissingLocaleResourceFile() {
+    val missingLocaleUser = new User(5, "someUser", false, "lastName", "username", "ja-JP");
+    val update = mockFullUpdate(bot, missingLocaleUser, "/start");
+
+    bot.onUpdateReceived(update);
+
+    verify(silent, times(1)).send(
+        format(
+            "Hello %s, it's private bot with limited access. Please use command: '/%s' to request access to private functionality.",
+            missingLocaleUser.getFirstName(), "request"),
+        missingLocaleUser.getId()
+    );
   }
 
   @SafeVarargs
@@ -278,8 +312,8 @@ public class RequestAccessPrivateBotTest {
     val sendMsgCaptor = ArgumentCaptor.forClass(String.class);
     val chatIdsCaptor = ArgumentCaptor.forClass(Long.class);
 
-    verify(silent, times(expectedMessages.length))
-        .send(sendMsgCaptor.capture(), chatIdsCaptor.capture());
+    verify(silent, times(expectedMessages.length)).send(
+        sendMsgCaptor.capture(), chatIdsCaptor.capture());
 
     val actualText = sendMsgCaptor.getAllValues();
     val actualChatIds = chatIdsCaptor.getAllValues();
@@ -300,7 +334,7 @@ public class RequestAccessPrivateBotTest {
   }
 
   private void addRequest(Integer userId, Status status) {
-    RequestAccess request = new RequestAccess((long) userId);
+    val request = new RequestAccess((long) userId);
     request.setStatus(status);
     bot.requests().put(userId, request);
   }
