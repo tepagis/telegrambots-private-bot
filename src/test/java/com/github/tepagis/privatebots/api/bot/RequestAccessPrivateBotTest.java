@@ -282,13 +282,13 @@ public class RequestAccessPrivateBotTest {
 
   @Test
   public void startByUserLocalizedRussian() {
-    val russianUser = new User(5, "Имя", false, "Фамилия", "username", "ru-RU");
+    val russianUser = new User(5, "name", false, "lastName", "username", "ru-RU");
     val update = mockFullUpdate(bot, russianUser, "/start");
 
     bot.onUpdateReceived(update);
 
     val expectedMsg = format(
-        "Здравствуйте, %s, это частный бот с ограниченным доступом. Пожалуйста, используйте команду: '/%s', чтобы запросить доступ.",
+        "Non sono presenti comandi disponibile. %s %s",
         russianUser.getFirstName(), "request");
     System.out.println(expectedMsg);
 
