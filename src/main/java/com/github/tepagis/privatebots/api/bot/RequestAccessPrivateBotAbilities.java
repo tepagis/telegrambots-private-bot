@@ -1,5 +1,7 @@
 package com.github.tepagis.privatebots.api.bot;
 
+import static com.github.tepagis.privatebots.api.util.BotUtils.DEFAULT_BUNDLE_NAME;
+import static com.github.tepagis.privatebots.api.util.BotUtils.getLocalizedMessage;
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.CREATOR_APPROVE_ALREADY;
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.CREATOR_APPROVE_SUCCESS;
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.CREATOR_NEW_REQUEST;
@@ -14,12 +16,12 @@ import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.PUB
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.REQUESTER_APPROVED;
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.REQUESTER_PENDING;
 import static com.github.tepagis.privatebots.api.util.PrivateBotMessageCodes.REQUESTER_REJECTED;
+import static org.telegram.abilitybots.api.bot.DefaultAbilities.COMMANDS;
 import static org.telegram.abilitybots.api.objects.Ability.builder;
 import static org.telegram.abilitybots.api.objects.Locality.USER;
 import static org.telegram.abilitybots.api.objects.Privacy.CREATOR;
 import static org.telegram.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.abilitybots.api.util.AbilityUtils.fullName;
-import static org.telegram.abilitybots.api.util.AbilityUtils.getLocalizedMessage;
 import static org.telegram.abilitybots.api.util.AbilityUtils.shortName;
 import static org.telegram.abilitybots.api.util.AbilityUtils.stripTag;
 
@@ -29,7 +31,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.val;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.telegram.abilitybots.api.bot.DefaultAbilities;
 import org.telegram.abilitybots.api.objects.Ability;
 import org.telegram.abilitybots.api.objects.MessageContext;
 import org.telegram.abilitybots.api.util.AbilityExtension;
@@ -231,7 +232,7 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
     val langCode = user.getLanguageCode();
     switch (request.getStatus()) {
       case APPROVED:
-        send(request.getRequesterChatId(), langCode, REQUESTER_APPROVED, name, DefaultAbilities.COMMANDS);
+        send(request.getRequesterChatId(), langCode, REQUESTER_APPROVED, name, COMMANDS);
         break;
       case PENDING:
         send(request.getRequesterChatId(), langCode, REQUESTER_PENDING, name);
@@ -252,7 +253,7 @@ public class RequestAccessPrivateBotAbilities implements AbilityExtension {
   }
 
   protected void send(Long chatId, String langCode, String msgCode, Object... args) {
-    val msg = getLocalizedMessage(msgCode, langCode, args);
+    val msg = getLocalizedMessage(DEFAULT_BUNDLE_NAME, msgCode, langCode, args);
     bot.silentSender().send(msg, chatId);
   }
 }
