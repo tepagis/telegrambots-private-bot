@@ -7,7 +7,6 @@ import static com.github.tepagis.privatebots.api.bot.TestUtils.USER2;
 import static com.github.tepagis.privatebots.api.bot.TestUtils.mockFullUpdate;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -281,27 +280,16 @@ public class RequestAccessPrivateBotTest {
   }
 
   @Test
-  public void startByUserLocalizedRussian() {
-    val russianUser = new User(5, "name", false, "lastName", "username", "ru-RU");
-    val update = mockFullUpdate(bot, russianUser, "/start");
+  public void startByUserLocalized() {
+    val user = new User(5, "name", false, "lastName", "username", "en-EN");
+    val update = mockFullUpdate(bot, user, "/start");
 
     bot.onUpdateReceived(update);
 
-    val expectedMsg = format(
-        "Non sono presenti comandi disponibile. %s %s",
-        russianUser.getFirstName(), "request");
-    System.out.println(expectedMsg);
-
-    val msgCaptor = ArgumentCaptor.forClass(String.class);
-    val chatIdsCaptor = ArgumentCaptor.forClass(Long.class);
-
     verify(silent, times(1)).send(
-        msgCaptor.capture(),
-        chatIdsCaptor.capture()
+        "Specific locale message to test",
+        user.getId()
     );
-
-    System.out.println(msgCaptor.getValue());
-    assertEquals(expectedMsg, msgCaptor.getValue());
   }
 
   @Test
