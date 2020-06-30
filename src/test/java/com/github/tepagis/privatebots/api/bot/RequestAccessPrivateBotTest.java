@@ -126,7 +126,7 @@ public class RequestAccessPrivateBotTest {
     bot.onUpdateReceived(update);
 
     verify(silent, times(1)).send(
-        format("Pending requests: \n%s\nHandled requests: \n%s",
+        format("Pending requests: \n%s\n___\nHandled requests: \n%s\n___",
             "userFirst userLast (id: 2): PENDING",
             "user2First user2Last (id: 3): APPROVED"),
         CREATOR.getId());
@@ -142,7 +142,7 @@ public class RequestAccessPrivateBotTest {
         of(
             CREATOR.getId(),
             format(
-                "The user=%1$s (id=%2$s) requests access. To approve use command: /%3$s %2$s. to reject: /%4$s %2$s",
+                "The user=%1$s (id=%2$s) requests access. To approve use command:\n/%3$s %2$s\nto reject:\n/%4$s %2$s",
                 USER.getFirstName(), USER.getId(), "approve", "reject")),
         of(
             USER.getId(),
