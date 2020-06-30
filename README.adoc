@@ -1,7 +1,10 @@
 = Telegram Private Bots
 
 image:https://github.com/tepagis/telegrambots-private-bot/workflows/build/badge.svg[link="https://github.com/tepagis/telegrambots-private-bot/actions",caption="Build Status"]
+image:https://jitpack.io/v/tepagis/telegrambots-private-bot.svg[link="https://jitpack.io/#tepagis/telegrambots-private-bot",caption="JitPack"]
 image:https://img.shields.io/badge/license-MIT-blue.svg[link="https://raw.githubusercontent.com/tepagis/telegrambots-private-bot/master/LICENSE,caption="GitHub license"]
+
+*Experimental* telegram bots with private access.
 
 == Dependencies
 
@@ -21,7 +24,7 @@ to provide request access flow:
 The user=First Name (id=11111) requests access. To approve use command: /approve 11111. to reject: /reject 11111
 ----
 
-* After the creator decides approve or reject request an additional message will be sent to requester
+* After the creator decides approve or reject request then an additional message will be sent to requester
 
 * If creator does not want to see any more requests from user, it can be banned: /ban 11111 (command from AbilityBot)
 
