@@ -50,3 +50,11 @@ public class BotExample extends RequestAccessPrivateBot {
   }
 }
 ----
+
+==== Required improvements
+* Reply to `/request` ability to ask reason for access providing for a requester. Should support text messages and files.
+* Instead of using method
+https://github.com/tepagis/telegrambots-private-bot/blob/master/src/main/java/com/github/tepagis/privatebots/api/bot/RequestAccessPrivateBot.java#L91[RequestAccessPrivateBot#hasAccess]
+in each private ability need mechanism to filter requests if user doesn't have approved request, like: *Policy* check in AbilityBot.
+* Create the builder for AbilityExtension to be possible configure _Request Access abilities_, for example:
+disable welcome messages or reason required reply.
